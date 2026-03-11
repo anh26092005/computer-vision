@@ -1,7 +1,7 @@
 import cv2
 
 # Đọc ảnh
-img = cv2.imread("../input/lab_image.jpg")
+img = cv2.imread("./input/lab_image.jpg")
 
 # Vẽ đường thẳng
 cv2.line (img,(100,100),(400,100),(255,0,0),3)

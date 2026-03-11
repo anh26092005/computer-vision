@@ -1,8 +1,7 @@
 import cv2
-from matplotlib import pyplot as plt
 
 # đọc ảnh
-img = cv2.imread('../input/lab_image.jpg')
+img = cv2.imread('./input/lab_image.jpg')
 
 # kiểm tra ảnh có đọc được không
 if img is None:
@@ -18,24 +17,11 @@ hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 # chuyển sang LAB
 lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
 
-# hiển thị ảnh gốc
-plt.subplot(2,2,1)
-plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-plt.title("Original")
+# hiển thị các ảnh bằng cv2
+cv2.imshow("Original", img)
+cv2.imshow("Grayscale", gray)
+cv2.imshow("HSV", hsv)
+cv2.imshow("LAB", lab)
 
-# grayscale
-plt.subplot(2,2,2)
-plt.imshow(gray, cmap='gray')
-plt.title("Grayscale")
-
-# HSV
-plt.subplot(2,2,3)
-plt.imshow(hsv)
-plt.title("HSV")
-
-# LAB
-plt.subplot(2,2,4)
-plt.imshow(lab)
-plt.title("LAB")
-
-plt.show()
+cv2.waitKey(0)
+cv2.destroyAllWindows()
