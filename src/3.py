@@ -2,7 +2,7 @@ import cv2
 from matplotlib import pyplot as plt
 
 # đọc ảnh
-img = cv2.imread("input/image3.jpg")
+img = cv2.imread('../input/image3.jpg') 
 
 # chuyển sang grayscale
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
