@@ -4,4 +4,4 @@ import cv2
 image = Image.open("./input./lab_image.jpg")
 # Hiển thị ảnh
 image.show()
-image.save("anh_lab.png")
+image.save("./output/anh_lab.png")
