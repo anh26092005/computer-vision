@@ -3,8 +3,3 @@ venv/
 env/
 ENV/
 
-data/output/
-output/
-*.jpg
-*.png
-*.jpeg
