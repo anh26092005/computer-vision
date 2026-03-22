@@ -19,7 +19,7 @@ print("Channels:", c)
 crop_img = img[200:600, 300:900]
 
 # Resize kích thước cố định
-resize_fixed = cv2.resize(img, (800, 600))
+resize_fixed = cv2.resize(img, (100, 600))
 
 # Resize theo tỉ lệ
 resize_half = cv2.resize(img, None, fx=0.5, fy=0.5)
