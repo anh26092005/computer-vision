@@ -19,21 +19,12 @@ Mô hình sử dụng kiến trúc **đa nhiệm vụ (Multi-task)**:
 
 ## ✨ Tính năng chính
 
-### 🖼️ Tab 1 — Giám định Chi tiết (Batch Image Mode)
-- Hỗ trợ tải lên **một hoặc nhiều ảnh** sản phẩm cùng lúc (JPG, PNG) để phân tích hàng loạt.
-- Hiển thị song song **ảnh gốc** và **ảnh kết quả** cho từng sản phẩm với:
-  - 🔴 **Mask đỏ** tô lên vùng bị lỗi (Segmentation).
-  - 📦 **Bounding Box** khoanh vị trí lỗi (Detection).
-- Thẻ kết quả hiển thị **loại lỗi** và **độ tin cậy** của mô hình AI dưới dạng hỏi đáp VQA.
-
-### 🎬 Tab 2 — Giám sát Băng chuyền (Video Batch Mode)
-- Tải lên file video (MP4, AVI) quay từ băng chuyền sản xuất.
+### 🎬 Giám sát Băng chuyền (Video Tracking Mode)
+- Tải lên file video (MP4, AVI) quay từ băng chuyền sản xuất thông qua giao diện **Tkinter** trực quan.
 - Hệ thống **tự động phát hiện và tracking** từng sản phẩm đi qua bằng thuật toán Computer Vision (Canny + Contour + Tracking).
-- **Trực quan hóa (Video Overlay):** Tự động vẽ Bounding Box, Segmentation Mask và Nhãn trạng thái (Lỗi/Đạt) trực tiếp lên từng khung hình video.
-- **Xem lại trực tiếp (Video Playback):** Tự động re-encode (H.264) và phát video kết quả giám định ngay trên nền web.
-- **Đóng gói báo cáo tự động** sau khi xử lý xong:
-  - 📊 Dashboard tóm tắt (Tổng sản phẩm / Đạt / Lỗi).
-  - 📥 Nút tải xuống **`HoSoKiemDinh.zip`** chứa file Video kết quả (`output_h264.mp4`) và file bảng tính `report.csv`.
+- **Trực quan hóa (Video Overlay):** Tự động vẽ Bounding Box, 🔴 Mask đỏ phân vùng lỗi và Nhãn trạng thái (Lỗi/Đạt) trực tiếp lên từng khung hình video.
+- ⏸️ Hỗ trợ **Tạm dừng / Tiếp tục** quá trình phân tích video bất cứ lúc nào.
+- 📥 Xuất báo cáo tự động ra file **CSV** chứa chi tiết trạng thái kiểm định và tỷ lệ độ tin cậy của từng sản phẩm.
 
 ---
 
@@ -47,7 +38,7 @@ Mô hình sử dụng kiến trúc **đa nhiệm vụ (Multi-task)**:
  ┃  ┣ 📜 dataset.py      # Dataset loader (DefectDataset)
  ┃  ┗ 📜 models.py       # Kiến trúc AI: VisionPipeline & MultiModalModel
  ┣ 📂 dataset/           # Dữ liệu huấn luyện
- ┣ 📜 app.py             # 🌐 Giao diện Web chính (Streamlit)
+ ┣ 📜 app.py             # 🖥️ Giao diện Desktop (Tkinter)
  ┣ 📜 train.py           # Script huấn luyện mô hình
  ┣ 📜 evaluate.py        # Script đánh giá hiệu năng mô hình
  ┣ 📜 best_model.pth     # ⚙️ Trọng số AI đã huấn luyện
@@ -57,13 +48,13 @@ Mô hình sử dụng kiến trúc **đa nhiệm vụ (Multi-task)**:
 
 ---
 
-## ⚙️ Hướng dẫn Cài đặt & Chạy Web App
+## ⚙️ Hướng dẫn Cài đặt & Chạy Ứng dụng
 
 ### Bước 1 — Lấy source code về máy
 
 ```bash
 git clone https://github.com/anh26092005/computer-vision.git
-cd multi_modal_defect_detection
+cd "computer-vision/Multi-Modal_Defect_Inspection_and_Visual_QA_System"
 ```
 
 ### Bước 2 — Tạo môi trường ảo (khuyến nghị)
@@ -90,10 +81,10 @@ pip install -r requirements.txt
 ### Bước 4 — Chạy ứng dụng
 
 ```bash
-streamlit run app.py
+python app.py
 ```
 
-Ứng dụng sẽ tự động mở trình duyệt tại địa chỉ: **`http://localhost:8501`**
+Giao diện cửa sổ ứng dụng (Tkinter) sẽ được tự động mở lên.
 
 ---
 
