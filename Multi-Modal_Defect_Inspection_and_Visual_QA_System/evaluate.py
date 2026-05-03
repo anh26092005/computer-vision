@@ -42,10 +42,13 @@ if __name__ == "__main__":
     total_dice_num = 0
     total_dice_den = 0
     
+    total_correct_pixels = 0
+    total_pixels = 0
+    
     total_box_iou = 0
     valid_box_count = 0
 
-    print("🚀 Đang chạy đánh giá mô hình trên toàn bộ tập Test. Vui lòng chờ...")
+    print("Dang chay danh gia mo hinh tren toan bo tap Test. Vui long cho...")
     
     # 3. Quét qua toàn bộ tập Test
     with torch.no_grad():
@@ -53,7 +56,6 @@ if __name__ == "__main__":
             images = batch['image'].to(DEVICE)
             questions = batch['question']
 
-            # Lấy đáp án chuẩn (Ground Truth)
             gt_masks = batch['mask'].to(DEVICE)
             gt_bboxes = batch['bbox'].to(DEVICE)
             gt_has_defect = batch['has_defect'].to(DEVICE)
@@ -75,14 +77,20 @@ if __name__ == "__main__":
 
             # --- NHÁNH 3: SEGMENTATION (Màng đỏ phân vùng) ---
             pred_masks = (torch.sigmoid(mask_logits) > 0.5).float()
-            # Tính Intersection và Union
+            
+            # Tính Intersection và Union cho mIoU
             intersection = (pred_masks * gt_masks).sum(dim=(2, 3))
             union = pred_masks.sum(dim=(2, 3)) + gt_masks.sum(dim=(2, 3)) - intersection
             total_intersection += intersection.sum().item()
             total_union += union.sum().item()
+            
             # Tính công thức Dice
             total_dice_num += (2.0 * intersection).sum().item()
             total_dice_den += (pred_masks.sum(dim=(2, 3)) + gt_masks.sum(dim=(2, 3))).sum().item()
+
+            # THÊM MỚI: Tính đếm số pixel đoán đúng (Pixel Accuracy)
+            total_correct_pixels += (pred_masks == gt_masks).sum().item()
+            total_pixels += torch.numel(gt_masks)
 
             # --- NHÁNH 4: DETECTION (Bounding Box) ---
             pred_boxes_xyxy = cxcywh_to_xyxy(bbox_preds)
@@ -97,40 +105,42 @@ if __name__ == "__main__":
 
     # 4. TÍNH TOÁN & IN BÁO CÁO KẾT QUẢ TỔNG QUAN
     print("\n" + "="*55)
-    print(" 📊 BÁO CÁO ĐÁNH GIÁ MÔ HÌNH MULTI-TASK (EVALUATION REPORT) ")
+    print(" BAO CAO DANH GIA MO HINH MULTI-TASK (EVALUATION REPORT) ")
     print("="*55)
 
     # Chỉ số Cảnh báo lỗi
     acc = accuracy_score(all_gt_defect, all_pred_defect)
     prec = precision_score(all_gt_defect, all_pred_defect, zero_division=0)
     rec = recall_score(all_gt_defect, all_pred_defect, zero_division=0)
-    print(f"[1] PHÁT HIỆN SẢN PHẨM LỖI (Binary Classification):")
-    print(f"    - Accuracy (Độ chính xác tổng): {acc*100:.2f}%")
-    print(f"    - Precision (Báo lỗi không bị nhầm): {prec*100:.2f}%")
-    print(f"    - Recall (Không bỏ lọt hàng lỗi): {rec*100:.2f}%")
+    print(f"[1] PHAT HIEN SAN PHAM LOI (Binary Classification):")
+    print(f"    - Accuracy (Do chinh xac tong): {acc*100:.2f}%")
+    print(f"    - Precision (Bao loi khong bi nham): {prec*100:.2f}%")
+    print(f"    - Recall (Khong bo lot hang loi): {rec*100:.2f}%")
 
     # Chỉ số Phân vùng
     mean_iou = total_intersection / (total_union + 1e-6)
     mean_dice = total_dice_num / (total_dice_den + 1e-6)
-    print(f"\n[2] PHÂN VÙNG LỖI (Segmentation):")
-    print(f"    - mIoU (Mức độ khớp vùng lỗi): {mean_iou*100:.2f}%")
+    pixel_acc = total_correct_pixels / total_pixels 
+    
+    print(f"\n[2] PHAN VUNG LOI (Segmentation):")
+    print(f"    - mIoU (Muc do khop vung loi): {mean_iou*100:.2f}%")
     print(f"    - Dice Score: {mean_dice*100:.2f}%")
+    print(f"    - Pixel Accuracy: {pixel_acc*100:.2f}%")
 
     # Chỉ số Bounding Box
     avg_box_iou = total_box_iou / (valid_box_count + 1e-6) if valid_box_count > 0 else 0
-    print(f"\n[3] XÁC ĐỊNH VỊ TRÍ (Object Detection):")
+    print(f"\n[3] XAC DINH VI TRI (Object Detection):")
     print(f"    - Average Box IoU: {avg_box_iou*100:.2f}%")
 
     # Chỉ số VQA
     vqa_acc = accuracy_score(all_gt_vqa, all_pred_vqa)
-    print(f"\n[4] PHÂN LOẠI CHI TIẾT LỖI (VQA/Captioning):")
+    print(f"\n[4] PHAN LOAI CHI TIET LOI (VQA/Captioning):")
     print(f"    - Top-1 Accuracy: {vqa_acc*100:.2f}%")
     print("="*55)
 
     # 5. Vẽ biểu đồ Ma trận nhầm lẫn (Confusion Matrix)
     cm = confusion_matrix(all_gt_vqa, all_pred_vqa)
     
-    # Chỉ lấy các label có xuất hiện trong tập test để biểu đồ đẹp hơn
     unique_labels = sorted(list(set(all_gt_vqa) | set(all_pred_vqa)))
     target_names = [IDX2VOCAB[i].upper() for i in unique_labels]
 
@@ -145,5 +155,5 @@ if __name__ == "__main__":
     
     # Lưu file ảnh và hiển thị
     plt.savefig('Multi-Modal_Defect_Inspection_and_Visual_QA_System/confusion_matrix_report.png', dpi=300)
-    print("\n✅ Đã lưu biểu đồ phân tích thành file 'confusion_matrix_report.png'.")
-    plt.show()
+    print("\n Da luu bieu do phan tich thanh file 'confusion_matrix_report.png'.")
+    # plt.show()

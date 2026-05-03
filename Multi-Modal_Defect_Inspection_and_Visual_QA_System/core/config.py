@@ -7,8 +7,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Cấu hình thiết bị
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 DATA_DIR = os.path.join(BASE_DIR, 'dataset')
-BATCH_SIZE = 8
-EPOCHS = 60
+BATCH_SIZE = 16
+EPOCHS = 200
 
 # Từ điển VQA 
 VOCAB = {"yes": 0, "no": 1, "scratch": 2, "bent": 3, "color": 4, "flip": 5, "good": 6}
